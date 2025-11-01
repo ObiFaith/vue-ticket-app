@@ -15,7 +15,7 @@
 
         <!-- Form -->
         <form
-          @submit.prevent="handleSubmit(onSubmit)"
+          @submit="handleSubmit(onSubmit)"
           class="grid gap-4 max-w-sm lg:max-w-md mx-auto"
         >
           <div v-for="field in SignupFields" :key="field.name">

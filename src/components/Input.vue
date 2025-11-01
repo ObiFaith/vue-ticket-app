@@ -1,42 +1,54 @@
 <template>
   <div class="grid gap-1 text-left">
-    <!-- Label -->
     <label v-if="label" class="block" :for="name">
       {{ label }}
     </label>
 
-    <!-- Error: show only if error && touched -->
     <div v-if="error && touched" class="text-red-600 text-sm">
       {{ error }}
     </div>
 
-    <!-- Input -->
     <input
       :id="name"
       :name="name"
       :type="type"
       :placeholder="placeholder"
-      :value="modelValue"
-      @input="$emit('update:modelValue', $event.target.value)"
-      @blur="$emit('blur')"
+      :value="value"
+      @input="handleInput"
+      @blur="handleBlur"
       class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:border-primary-400"
     />
   </div>
 </template>
 
 <script setup>
-defineProps({
+const props = defineProps({
   label: String,
   name: String,
-  type: {
-    type: String,
-    default: "text",
-  },
+  type: { type: String, default: "text" },
   placeholder: String,
   error: String,
   touched: Boolean,
-  modelValue: [String, Number],
+  value: [String, Number],
+  onChange: Function,
+  onBlur: Function,
 });
 
-defineEmits(["update:modelValue", "blur"]);
+const emit = defineEmits(["update:modelValue", "blur"]);
+
+const handleInput = e => {
+  const value = e.target.value;
+  // Support both vee-validate and v-model
+  if (props.onChange) {
+    props.onChange(value);
+  }
+  emit("update:modelValue", value);
+};
+
+const handleBlur = e => {
+  if (props.onBlur) {
+    props.onBlur(e);
+  }
+  emit("blur");
+};
 </script>

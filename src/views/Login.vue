@@ -31,7 +31,7 @@
             />
           </Field>
 
-          <button class="my-6" type="submit" :disabled="isSubmitting">
+          <button class="my-6" type="submit">
             {{ isSubmitting ? "Signing in..." : "Log In" }}
           </button>
         </form>
@@ -63,7 +63,7 @@ import axios from "axios";
 import { useRouter } from "vue-router";
 import { useToast } from "vue-toastification";
 import { useAuthStore } from "../store/auth";
-import { useForm, Field } from "vee-validate"; // <-- import Field
+import { useForm, Field } from "vee-validate";
 import { Logo, Input } from "../components";
 import { apiUrl } from "../constant";
 import { LoginFields, LoginValues, LoginSchema } from "../form";
@@ -72,7 +72,24 @@ const router = useRouter();
 const toast = useToast();
 const auth = useAuthStore();
 
-// Vee-Validate form
+// Submit logic
+const onSubmit = async values => {
+  console.log(values);
+  try {
+    const { data } = await axios.post(`${apiUrl}/api/v1/auth/login`, values);
+    localStorage.setItem("token", data.token);
+    auth.setUser(data.user);
+    resetForm();
+    toast.success(data.message);
+    setTimeout(() => {
+      router.push("/dashboard");
+    }, 800);
+  } catch (error) {
+    toast.error(error.response?.data?.message || "Please try again later!");
+  }
+};
+
+// Vee-Validate form - pass onSubmit directly
 const { handleSubmit, errors, isSubmitting, resetForm } = useForm({
   validationSchema: LoginSchema,
   initialValues: LoginValues,
